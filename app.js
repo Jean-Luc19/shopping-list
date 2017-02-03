@@ -1,58 +1,62 @@
 var state = {
   items: [
-    {title: 'apples', done: 'true'},
-    {title: 'oranges', done: 'false'},
-    {title: 'milk', done: 'false'},
-    {title: 'bread', done: 'false'},
+    {title: 'apples', done: false},
+    {title: 'oranges', done: false},
+    {title: 'milk', done: true},
+    {title: 'bread', done: false},
   ]
 };
 //modify state function to add items to list
 function addItem(state, item) {
-  state.items.push({title:item, done:'false'});
+  state.items.push({title:item, done:false});
 }
 //render function to display state on page
 function renderList(state, element) {
-  var itemsHTML = state.items.map(function(item){
-      return `<li>
-        <span class="shopping-item"> ${item.title} </span>
-        <div class="shopping-item-controls">
-          <button class="shopping-item-toggle">
-            <span class="button-label">check</span>
-          </button>
-          <button class="shopping-item-delete">
-            <span class="button-label">delete</span>
-          </button>
-        </div>
-      </li>`;
+  var itemsHTML = state.items.map(function(item, index){
+    var toggleClass = '';
+    if (item.done) toggleClass = 'shopping-item__checked';
+
+    return `
+        <li id="${index}">
+          <span class="shopping-item ${toggleClass}"> ${item.title} </span>
+          <div class="shopping-item-controls">
+            <button class="shopping-item-toggle">
+              <span class="button-label">check</span>
+            </button>
+            <button class="shopping-item-delete">
+              <span class="button-label">delete</span>
+            </button>
+          </div>
+        </li>
+      `;
   });
   element.html(itemsHTML);
-
 }
 //render function to toggle checked clicks
 function toggleCheck(elem) {
-  return elem.toggleClass('shopping-item__checked');
+  if (state.items[elem].done === false){
+    state.items[elem].done = true;
+  }
+  else {
+    state.items[elem].done = false;
+  }
 }
 //delete items from state
 function deleteItems(item){
-  var itemIndex = 0;
-  state.items.map(function(x, i){
-    if (x.title === item) {
-      itemIndex = i;
-    }
-  });
-  state.items.splice(itemIndex, 1);
-  console.log(state);
+  state.items.splice(item, 1);
 }
 
 function eventListeners() {
   //listen for checked clicks
   $('.shopping-list').on('click', '.shopping-item-toggle', function(event){
-    var $elem = $(this).closest('li').children('span');
+    var $elem = $(this).closest('li').attr('id');
     toggleCheck($elem);
+    renderList(state, $('.shopping-list'));
+    console.log($elem);
   });
   //listen for delete clicks
   $('.shopping-list').on('click', '.shopping-item-delete', function(event) {
-    var $item = $(this).closest('li').children('span').text();
+    var $item = $(this).closest('li').attr('id');
     deleteItems($item);
     renderList(state, $('.shopping-list'));
   });
